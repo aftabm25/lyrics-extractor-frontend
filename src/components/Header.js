@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
+import { LogOut } from 'lucide-react';
+import { hasValidSpotifySession, clearSpotifySession } from '../services/spotifyService';
 
 const HeaderContainer = styled.header`
   background: rgba(255, 255, 255, 0.1);
@@ -86,7 +88,61 @@ const StatusDot = styled.div`
   }
 `;
 
+const LogoutButton = styled(motion.button)`
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 25px;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+  }
+`;
+
 function Header() {
+  const [isSpotifyConnected, setIsSpotifyConnected] = useState(false);
+
+  useEffect(() => {
+    // Check if user is connected to Spotify
+    const checkSpotifyConnection = () => {
+      const connected = hasValidSpotifySession();
+      setIsSpotifyConnected(connected);
+    };
+
+    checkSpotifyConnection();
+    
+    // Listen for storage changes to update connection status
+    const handleStorageChange = () => {
+      checkSpotifyConnection();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also check periodically
+    const interval = setInterval(checkSpotifyConnection, 5000);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, []);
+
+  const handleLogout = () => {
+    clearSpotifySession();
+    setIsSpotifyConnected(false);
+    // Force a page reload to clear any cached state
+    window.location.reload();
+  };
+
   return (
     <HeaderContainer>
       <HeaderContent>
@@ -115,6 +171,17 @@ function Header() {
             <StatusDot />
             <span>Backend Online</span>
           </StatusIndicator>
+
+          {isSpotifyConnected && (
+            <LogoutButton
+              onClick={handleLogout}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <LogOut size={16} />
+              Logout
+            </LogoutButton>
+          )}
         </Nav>
       </HeaderContent>
     </HeaderContainer>
