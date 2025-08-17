@@ -7,6 +7,7 @@ import {
   hasValidSpotifySession, 
   getStoredAccessToken,
   getCurrentlyPlayingTrack,
+  getUserProfile,
   clearSpotifySession,
   extractTrackInfo,
   exchangeCodeForToken,
@@ -179,13 +180,89 @@ const LoadingMessage = styled.div`
   padding: 1rem;
 `;
 
+const UserProfileContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+`;
+
+const ProfilePicture = styled.img`
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #1DB954;
+`;
+
+const UserInfo = styled.div`
+  flex: 1;
+`;
+
+const UserName = styled.h4`
+  color: white;
+  margin: 0 0 0.25rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+`;
+
+const UserStatus = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #1DB954;
+  font-size: 0.9rem;
+  font-weight: 500;
+`;
+
+const ConnectedIndicator = styled.div`
+  width: 8px;
+  height: 8px;
+  background: #1DB954;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+  
+  @keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+  }
+`;
+
 function SpotifyConnect({ onLyricsFound }) {
   const [isConnected, setIsConnected] = useState(false);
   const [currentTrack, setCurrentTrack] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Define fetchCurrentTrack first
+  // Define fetchUserProfile first
+  const fetchUserProfile = useCallback(async () => {
+    if (!isConnected) return;
+    
+    try {
+      const accessToken = getStoredAccessToken();
+      if (!accessToken) {
+        setIsConnected(false);
+        return;
+      }
+
+      const profileData = await getUserProfile(accessToken);
+      setUserProfile(profileData);
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      if (error.message.includes('401')) {
+        // Token expired
+        setIsConnected(false);
+        clearSpotifySession();
+      }
+    }
+  }, [isConnected]);
+
+  // Define fetchCurrentTrack
   const fetchCurrentTrack = useCallback(async () => {
     if (!isConnected) return;
     
@@ -231,13 +308,14 @@ function SpotifyConnect({ onLyricsFound }) {
       // Clear the URL parameters
       window.history.replaceState({}, document.title, window.location.pathname);
       
-      // Fetch current track
+      // Fetch user profile and current track
+      fetchUserProfile();
       fetchCurrentTrack();
     } catch (error) {
       toast.error('Failed to connect to Spotify');
       console.error('Spotify callback error:', error);
     }
-  }, [fetchCurrentTrack]);
+  }, [fetchUserProfile, fetchCurrentTrack]);
 
   useEffect(() => {
     // Check if user is already connected to Spotify
@@ -245,9 +323,10 @@ function SpotifyConnect({ onLyricsFound }) {
     setIsConnected(connected);
     
     if (connected) {
+      fetchUserProfile();
       fetchCurrentTrack();
     }
-  }, [fetchCurrentTrack]);
+  }, [fetchUserProfile, fetchCurrentTrack]);
 
   useEffect(() => {
     // Handle Spotify callback with authorization code
@@ -268,6 +347,7 @@ function SpotifyConnect({ onLyricsFound }) {
     clearSpotifySession();
     setIsConnected(false);
     setCurrentTrack(null);
+    setUserProfile(null);
     toast.success('Disconnected from Spotify');
   };
 
@@ -331,63 +411,90 @@ function SpotifyConnect({ onLyricsFound }) {
       </Header>
 
       {isConnected && (
-        <CurrentTrackContainer>
-          {isRefreshing ? (
-            <LoadingMessage>Refreshing track info...</LoadingMessage>
-          ) : currentTrack ? (
-            <>
-              <TrackInfo>
-                {currentTrack.albumArt && (
-                  <AlbumArt src={currentTrack.albumArt} alt="Album Art" />
-                )}
-                <TrackDetails>
-                  <TrackName>{currentTrack.name}</TrackName>
-                  <TrackArtist>{currentTrack.artist}</TrackArtist>
-                  <TrackAlbum>{currentTrack.album}</TrackAlbum>
-                </TrackDetails>
-                {currentTrack.isPlaying ? (
-                  <Play size={20} color="#1DB954" />
-                ) : (
-                  <Pause size={20} color="#FF6B6B" />
-                )}
-              </TrackInfo>
-              
-              <ActionButtons>
-                <GetLyricsButton
-                  onClick={getLyricsForCurrentTrack}
-                  disabled={isLoading}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  {isLoading ? 'Finding Lyrics...' : 'Get Lyrics'}
-                </GetLyricsButton>
+        <>
+          {/* User Profile Section */}
+          <UserProfileContainer>
+            {userProfile?.images?.[0]?.url ? (
+              <ProfilePicture 
+                src={userProfile.images[0].url} 
+                alt={userProfile.display_name || 'Profile'} 
+              />
+            ) : (
+              <ProfilePicture 
+                src="https://via.placeholder.com/50x50/1DB954/FFFFFF?text=🎵" 
+                alt="Default Profile" 
+              />
+            )}
+            <UserInfo>
+              <UserName>
+                {userProfile?.display_name || 'Spotify User'}
+              </UserName>
+              <UserStatus>
+                <ConnectedIndicator />
+                Connected to Spotify
+              </UserStatus>
+            </UserInfo>
+          </UserProfileContainer>
+
+          {/* Current Track Section */}
+          <CurrentTrackContainer>
+            {isRefreshing ? (
+              <LoadingMessage>Refreshing track info...</LoadingMessage>
+            ) : currentTrack ? (
+              <>
+                <TrackInfo>
+                  {currentTrack.albumArt && (
+                    <AlbumArt src={currentTrack.albumArt} alt="Album Art" />
+                  )}
+                  <TrackDetails>
+                    <TrackName>{currentTrack.name}</TrackName>
+                    <TrackArtist>{currentTrack.artist}</TrackArtist>
+                    <TrackAlbum>{currentTrack.album}</TrackAlbum>
+                  </TrackDetails>
+                  {currentTrack.isPlaying ? (
+                    <Play size={20} color="#1DB954" />
+                  ) : (
+                    <Pause size={20} color="#FF6B6B" />
+                  )}
+                </TrackInfo>
                 
-                <SpotifyButton
-                  onClick={openInSpotify}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <ExternalLink size={16} />
-                  Open in Spotify
-                </SpotifyButton>
-                
-                <ActionButton
-                  onClick={fetchCurrentTrack}
-                  disabled={isRefreshing}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Play size={16} />
-                  {isRefreshing ? 'Refreshing...' : 'Refresh Track'}
-                </ActionButton>
-              </ActionButtons>
-            </>
-          ) : (
-            <NoTrackMessage>
-              No track currently playing. Start playing music on Spotify to see it here.
-            </NoTrackMessage>
-          )}
-        </CurrentTrackContainer>
+                <ActionButtons>
+                  <GetLyricsButton
+                    onClick={getLyricsForCurrentTrack}
+                    disabled={isLoading}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    {isLoading ? 'Finding Lyrics...' : 'Get Lyrics'}
+                  </GetLyricsButton>
+                  
+                  <SpotifyButton
+                    onClick={openInSpotify}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <ExternalLink size={16} />
+                    Open in Spotify
+                  </SpotifyButton>
+                  
+                  <ActionButton
+                    onClick={fetchCurrentTrack}
+                    disabled={isRefreshing}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Play size={16} />
+                    {isRefreshing ? 'Refreshing...' : 'Refresh Track'}
+                  </ActionButton>
+                </ActionButtons>
+              </>
+            ) : (
+              <NoTrackMessage>
+                No track currently playing. Start playing music on Spotify to see it here.
+              </NoTrackMessage>
+            )}
+          </CurrentTrackContainer>
+        </>
       )}
     </Container>
   );

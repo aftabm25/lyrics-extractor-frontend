@@ -8,7 +8,8 @@ const SPOTIFY_API_BASE = 'https://api.spotify.com/v1';
 const SCOPES = [
   'user-read-currently-playing',
   'user-read-playback-state',
-  'user-read-recently-played'
+  'user-read-recently-played',
+  'user-read-private'
 ].join(' ');
 
 /**
@@ -86,6 +87,32 @@ export const getCurrentlyPlayingTrack = async (accessToken) => {
   } catch (error) {
     console.error('Error fetching currently playing track:', error);
     throw new Error('Failed to fetch currently playing track');
+  }
+};
+
+/**
+ * Get user's profile information
+ * @param {string} accessToken - Spotify access token
+ * @returns {Promise<Object>} User profile
+ */
+export const getUserProfile = async (accessToken) => {
+  try {
+    const response = await fetch(`${SPOTIFY_API_BASE}/me`, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    throw new Error('Failed to fetch user profile');
   }
 };
 
