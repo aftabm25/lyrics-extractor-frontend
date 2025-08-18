@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { LogOut, Music, Brain, Sparkles, Wifi, Play } from 'lucide-react';
+import { LogOut, Music, Sparkles } from 'lucide-react';
 import { hasValidSpotifySession, clearSpotifySession, getSpotifyAuthURL } from '../services/spotifyService';
 
 const HeaderContainer = styled.header`
