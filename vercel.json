@@ -29,6 +29,5 @@
   ],
   "env": {
     "REACT_APP_API_URL": "https://web-production-176d5.up.railway.app"
-  },
-  "comment": "Force redeploy to pick up latest CORS fixes"
+  }
 }
