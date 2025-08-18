@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { LogOut } from 'lucide-react';
-import { hasValidSpotifySession, clearSpotifySession } from '../services/spotifyService';
+import { LogOut, Music, Brain, Sparkles, Wifi, Play } from 'lucide-react';
+import { hasValidSpotifySession, clearSpotifySession, getSpotifyAuthURL } from '../services/spotifyService';
 
 const HeaderContainer = styled.header`
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 1rem 2rem;
+  background: rgba(26, 26, 46, 0.3);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1rem 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 `;
 
 const HeaderContent = styled.div`
@@ -19,59 +22,68 @@ const HeaderContent = styled.div`
   align-items: center;
 `;
 
+const LeftSection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+`;
+
 const Logo = styled(motion.div)`
   display: flex;
   align-items: center;
   gap: 0.75rem;
   color: white;
   font-size: 1.5rem;
-  font-weight: 700;
+  font-weight: 800;
   text-decoration: none;
+  background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientFlow 3s ease infinite;
+  
+  @keyframes gradientFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
   
   &:hover {
     text-decoration: none;
-    color: white;
+    transform: scale(1.05);
   }
 `;
 
-const LogoIcon = styled.span`
+const LogoIcon = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   font-size: 2rem;
 `;
 
 const LogoText = styled.span`
-  @media (max-width: 768px) {
+  @media (max-width: 640px) {
     display: none;
   }
 `;
 
-const Nav = styled.nav`
-  display: flex;
-  gap: 2rem;
-  align-items: center;
-  
-  @media (max-width: 768px) {
-    gap: 1rem;
-  }
-`;
-
-const NavLink = styled(motion.a)`
-  color: rgba(255, 255, 255, 0.9);
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.3s ease;
-  
-  &:hover {
-    color: white;
-    text-decoration: none;
-  }
-`;
-
-const StatusIndicator = styled.div`
+const BackendStatus = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.8);
+  padding: 0.5rem 0.75rem;
+  background: rgba(72, 187, 120, 0.1);
+  border: 1px solid rgba(72, 187, 120, 0.3);
+  border-radius: 20px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.8rem;
+  font-weight: 500;
+  
+  @media (max-width: 768px) {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.75rem;
+  }
 `;
 
 const StatusDot = styled.div`
@@ -80,31 +92,130 @@ const StatusDot = styled.div`
   border-radius: 50%;
   background: #48bb78;
   animation: pulse 2s infinite;
+  box-shadow: 0 0 8px rgba(72, 187, 120, 0.5);
   
   @keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.2); }
+    100% { opacity: 1; transform: scale(1); }
   }
 `;
 
+const RightSection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  
+  @media (max-width: 768px) {
+    gap: 0.75rem;
+  }
+`;
+
+const SpotifySection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  
+  @media (max-width: 640px) {
+    gap: 0.5rem;
+  }
+`;
+
+const SpotifyProfile = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(29, 185, 84, 0.1);
+  border: 1px solid rgba(29, 185, 84, 0.3);
+  border-radius: 20px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.8rem;
+  font-weight: 500;
+  
+  @media (max-width: 768px) {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.75rem;
+  }
+  
+  @media (max-width: 640px) {
+    .profile-text {
+      display: none;
+    }
+  }
+`;
+
+const SpotifyIcon = styled.div`
+  color: #1db954;
+  display: flex;
+  align-items: center;
+`;
+
 const LogoutButton = styled(motion.button)`
-  background: rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 25px;
-  padding: 0.75rem 1.5rem;
-  font-size: 0.9rem;
+  border: none;
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
   
   &:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: linear-gradient(135deg, #ee5a24, #ff6b6b);
     transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+  }
+  
+  @media (max-width: 768px) {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+  }
+  
+  @media (max-width: 640px) {
+    .logout-text {
+      display: none;
+    }
+  }
+`;
+
+const ConnectButton = styled(motion.button)`
+  background: linear-gradient(135deg, #1db954, #1ed760);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(29, 185, 84, 0.3);
+  white-space: nowrap;
+  
+  &:hover {
+    background: linear-gradient(135deg, #1ed760, #1db954);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(29, 185, 84, 0.4);
+  }
+  
+  @media (max-width: 768px) {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 0.5rem 1rem;
+    font-size: 0.7rem;
+    min-width: 120px;
   }
 `;
 
@@ -143,46 +254,66 @@ function Header() {
     window.location.reload();
   };
 
+  const handleSpotifyConnect = () => {
+    // Redirect to Spotify authorization
+    const authUrl = getSpotifyAuthURL();
+    window.location.href = authUrl;
+  };
+
   return (
     <HeaderContainer>
       <HeaderContent>
-        <Logo
-          as="a"
-          href="/"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <LogoIcon>🎵</LogoIcon>
-          <LogoText>Lyrics Extractor</LogoText>
-        </Logo>
-        
-        <Nav>
-          <NavLink
-            href="https://web-production-176d5.up.railway.app/api/health"
-            target="_blank"
-            rel="noopener noreferrer"
+        <LeftSection>
+          <Logo
+            as="a"
+            href="/"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            API Status
-          </NavLink>
+            <LogoIcon>
+              <Music size={28} />
+              <Sparkles size={18} />
+            </LogoIcon>
+            <LogoText>LyricsAI</LogoText>
+          </Logo>
           
-          <StatusIndicator>
+          <BackendStatus>
             <StatusDot />
-            <span>Backend Online</span>
-          </StatusIndicator>
-
-          {isSpotifyConnected && (
-            <LogoutButton
-              onClick={handleLogout}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <LogOut size={16} />
-              Logout
-            </LogoutButton>
-          )}
-        </Nav>
+            <span>Online</span>
+          </BackendStatus>
+        </LeftSection>
+        
+        <RightSection>
+          <SpotifySection>
+            {isSpotifyConnected ? (
+              <>
+                <SpotifyProfile>
+                  <SpotifyIcon>
+                    <Music size={16} />
+                  </SpotifyIcon>
+                  <span className="profile-text">Connected</span>
+                </SpotifyProfile>
+                
+                <LogoutButton
+                  onClick={handleLogout}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <LogOut size={16} />
+                  <span className="logout-text">Logout</span>
+                </LogoutButton>
+              </>
+            ) : (
+              <ConnectButton
+                onClick={handleSpotifyConnect}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <span className="connect-text">Connect to Spotify</span>
+              </ConnectButton>
+            )}
+          </SpotifySection>
+        </RightSection>
       </HeaderContent>
     </HeaderContainer>
   );

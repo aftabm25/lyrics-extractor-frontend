@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
+import { Search as SearchIcon, Sparkles } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { Search, Sparkles } from 'lucide-react';
 import { extractLyrics } from '../services/lyricsService';
 import LyricsDisplay from './LyricsDisplay';
 import LoadingSpinner from './LoadingSpinner';
@@ -83,20 +83,20 @@ const Title = styled.h1`
 const Subtitle = styled.p`
   text-align: center;
   color: #64748b;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
   font-size: 1.3rem;
   font-weight: 500;
   line-height: 1.6;
   
   @media (max-width: 768px) {
     font-size: 1.1rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
     padding: 0 0.5rem;
   }
   
   @media (max-width: 480px) {
     font-size: 1rem;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.5rem;
     padding: 0 0.25rem;
   }
 `;
@@ -171,7 +171,7 @@ const Input = styled.input`
   }
 `;
 
-const SearchIcon = styled.div`
+const SearchIconWrapper = styled.div`
   position: absolute;
   left: 1.25rem;
   top: 50%;
@@ -258,7 +258,7 @@ const ErrorMessage = styled(motion.div)`
   }
 `;
 
-function LyricsExtractor() {
+function Search() {
   const [lyrics, setLyrics] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -310,17 +310,17 @@ function LyricsExtractor() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
     >
-      <Title>Discover Song Meanings</Title>
+      <Title>Search Lyrics</Title>
       <Subtitle>
-        Unlock the hidden stories behind your favorite lyrics with AI-powered analysis
+        Find lyrics for any song and discover their deeper meaning with AI analysis
       </Subtitle>
 
       <Form onSubmit={handleSubmit(onSubmit)}>
         <InputGroup>
           <InputWrapper>
-            <SearchIcon>
-              <Search size={20} />
-            </SearchIcon>
+            <SearchIconWrapper>
+              <SearchIcon size={20} />
+            </SearchIconWrapper>
             <Input
               {...register('song_name', { required: true })}
               placeholder="Enter song name or artist..."
@@ -369,4 +369,4 @@ function LyricsExtractor() {
   );
 }
 
-export default LyricsExtractor;
+export default Search;

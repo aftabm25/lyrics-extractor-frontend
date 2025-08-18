@@ -4,15 +4,24 @@ import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { Toaster } from 'react-hot-toast';
 import LyricsExtractor from './components/LyricsExtractor';
+import Search from './components/Search';
 import Header from './components/Header';
-import Footer from './components/Footer';
+import BottomNavigation from './components/BottomNavigation';
 import './styles/App.css';
 
 const AppContainer = styled.div`
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #533483 75%, #7209b7 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
   display: flex;
   flex-direction: column;
+  
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
 `;
 
 const MainContent = styled(motion.main)`
@@ -22,6 +31,31 @@ const MainContent = styled(motion.main)`
   align-items: center;
   justify-content: center;
   padding: 2rem;
+  padding-bottom: 6rem; /* Add bottom padding for mobile nav */
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="music-notes" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse"><text x="50" y="50" font-family="Arial" font-size="8" fill="rgba(255,255,255,0.03)" text-anchor="middle">♪♫♬</text></pattern></defs><rect width="100" height="100" fill="url(%23music-notes)"/></svg>');
+    pointer-events: none;
+    z-index: 0;
+  }
+  
+  @media (min-width: 768px) {
+    padding-bottom: 2rem; /* Reset padding for desktop */
+  }
+`;
+
+const ContentWrapper = styled.div`
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1200px;
 `;
 
 function App() {
@@ -33,8 +67,10 @@ function App() {
           toastOptions={{
             duration: 4000,
             style: {
-              background: '#363636',
+              background: 'rgba(26, 26, 46, 0.95)',
               color: '#fff',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              backdropFilter: 'blur(10px)',
             },
           }}
         />
@@ -44,14 +80,17 @@ function App() {
         <MainContent
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          <Routes>
-            <Route path="/" element={<LyricsExtractor />} />
-          </Routes>
+          <ContentWrapper>
+            <Routes>
+              <Route path="/" element={<LyricsExtractor />} />
+              <Route path="/search" element={<Search />} />
+            </Routes>
+          </ContentWrapper>
         </MainContent>
         
-        <Footer />
+        <BottomNavigation />
       </AppContainer>
     </Router>
   );
