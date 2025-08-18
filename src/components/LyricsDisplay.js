@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { Copy, Download, RotateCcw } from 'lucide-react';
+import { Copy, Download, RotateCcw, Brain, Eye, EyeOff } from 'lucide-react';
+import { getLyricsMeaning } from '../services/lyricsService';
+import toast from 'react-hot-toast';
 
 const Container = styled(motion.div)`
   background: #f7fafc;
@@ -147,8 +149,115 @@ const CopySuccess = styled(motion.div)`
   z-index: 10;
 `;
 
+const UnderstandButton = styled(ActionButton)`
+  background: #8b5cf6;
+  color: white;
+  
+  &:hover {
+    background: #7c3aed;
+  }
+`;
+
+const ToggleButton = styled(ActionButton)`
+  background: #64748b;
+  color: white;
+  
+  &:hover {
+    background: #475569;
+  }
+`;
+
+const MeaningsContainer = styled.div`
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(139, 92, 246, 0.1);
+  border-radius: 12px;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+`;
+
+const MeaningHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+`;
+
+const MeaningTitle = styled.h4`
+  color: #7c3aed;
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const MeaningItem = styled.div`
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid rgba(139, 92, 246, 0.1);
+`;
+
+const MeaningLine = styled.div`
+  font-size: 1rem;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+`;
+
+const MeaningText = styled.div`
+  font-size: 0.9rem;
+  color: #4a5568;
+  line-height: 1.5;
+  font-style: italic;
+`;
+
+const MeaningType = styled.span`
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-left: 0.5rem;
+`;
+
+const LyricType = styled(MeaningType)`
+  background: #e2e8f0;
+  color: #4a5568;
+`;
+
+const MeaningTypeBadge = styled(MeaningType)`
+  background: #c6f6d5;
+  color: #22543d;
+`;
+
+const StanzaType = styled(MeaningType)`
+  background: #fed7d7;
+  color: #742a2a;
+`;
+
+const LoadingSpinner = styled.div`
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 50%;
+  border-top-color: #8b5cf6;
+  animation: spin 1s ease-in-out infinite;
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+`;
+
 function LyricsDisplay({ lyrics, onReset }) {
   const [showCopySuccess, setShowCopySuccess] = useState(false);
+  const [meanings, setMeanings] = useState(null);
+  const [loadingMeanings, setLoadingMeanings] = useState(false);
+  const [showMeanings, setShowMeanings] = useState(false);
 
   const handleCopy = async () => {
     try {
@@ -181,8 +290,47 @@ function LyricsDisplay({ lyrics, onReset }) {
     URL.revokeObjectURL(url);
   };
 
+  const handleUnderstandMeaning = async () => {
+    if (loadingMeanings) return;
+    
+    setLoadingMeanings(true);
+    try {
+      const meaningData = await getLyricsMeaning({
+        lyrics: lyrics.lyrics,
+        songId: null,
+        customInstructions: "Focus on emotional interpretation, metaphors, and deeper meaning. Keep explanations concise but insightful."
+      });
+      
+      setMeanings(meaningData);
+      setShowMeanings(true);
+      toast.success('Lyrics meaning generated successfully!');
+    } catch (error) {
+      toast.error(`Failed to get lyrics meaning: ${error.message}`);
+      console.error('Error getting lyrics meaning:', error);
+    } finally {
+      setLoadingMeanings(false);
+    }
+  };
+
+  const toggleMeanings = () => {
+    setShowMeanings(!showMeanings);
+  };
+
   const formatNumber = (num) => {
     return num.toLocaleString();
+  };
+
+  const getTypeBadge = (type) => {
+    switch (type) {
+      case 'Lyric':
+        return <LyricType>{type}</LyricType>;
+      case 'Meaning':
+        return <MeaningTypeBadge>{type}</MeaningTypeBadge>;
+      case 'Stanza':
+        return <StanzaType>{type}</StanzaType>;
+      default:
+        return <MeaningType>{type}</MeaningType>;
+    }
   };
 
   return (
@@ -219,6 +367,16 @@ function LyricsDisplay({ lyrics, onReset }) {
             <Download size={16} />
             Download
           </DownloadButton>
+
+          <UnderstandButton
+            onClick={handleUnderstandMeaning}
+            disabled={loadingMeanings}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            {loadingMeanings ? <LoadingSpinner /> : <Brain size={16} />}
+            {loadingMeanings ? 'Analyzing...' : 'Understand Meaning'}
+          </UnderstandButton>
           
           <ResetButton
             onClick={onReset}
@@ -244,6 +402,57 @@ function LyricsDisplay({ lyrics, onReset }) {
         
         <LyricsText>{lyrics.lyrics}</LyricsText>
       </LyricsContainer>
+
+      {meanings && (
+        <MeaningsContainer>
+          <MeaningHeader>
+            <MeaningTitle>
+              <Brain size={18} />
+              Lyrics Analysis
+            </MeaningTitle>
+            <ToggleButton
+              onClick={toggleMeanings}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              {showMeanings ? <EyeOff size={16} /> : <Eye size={16} />}
+              {showMeanings ? 'Hide Meanings' : 'Show Meanings'}
+            </ToggleButton>
+          </MeaningHeader>
+          
+          {showMeanings && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              transition={{ duration: 0.3 }}
+            >
+              {meanings.lyricsMeaning.map((item, index) => (
+                <MeaningItem key={index}>
+                  <MeaningLine>
+                    {item.Line}
+                    {getTypeBadge(item.Type)}
+                  </MeaningLine>
+                  {item.Type === 'Lyric' && (
+                    <MeaningText>
+                      <strong>Original lyric line</strong>
+                    </MeaningText>
+                  )}
+                  {item.Type === 'Meaning' && (
+                    <MeaningText>
+                      <strong>Interpretation:</strong> {item.Line}
+                    </MeaningText>
+                  )}
+                  {item.Type === 'Stanza' && (
+                    <MeaningText>
+                      <strong>Stanza Summary:</strong> {item.Line}
+                    </MeaningText>
+                  )}
+                </MeaningItem>
+              ))}
+            </motion.div>
+          )}
+        </MeaningsContainer>
+      )}
     </Container>
   );
 }
