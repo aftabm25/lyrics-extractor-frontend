@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
@@ -7,6 +7,8 @@ import LyricsExtractor from './components/LyricsExtractor';
 import Search from './components/Search';
 import Header from './components/Header';
 import BottomNavigation from './components/BottomNavigation';
+import { hasValidSpotifySession, exchangeCodeForToken, storeSpotifyTokens } from './services/spotifyService';
+import toast from 'react-hot-toast';
 import './styles/App.css';
 
 const AppContainer = styled.div`
@@ -59,6 +61,41 @@ const ContentWrapper = styled.div`
 `;
 
 function App() {
+  useEffect(() => {
+    // Handle Spotify OAuth callback
+    const handleSpotifyCallback = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      
+      if (code) {
+        try {
+          // Exchange authorization code for access token
+          const tokenData = await exchangeCodeForToken(code);
+          
+          // Store tokens
+          storeSpotifyTokens(tokenData);
+          
+          toast.success('Spotify connected successfully!');
+          
+          // Clear the URL parameters
+          window.history.replaceState({}, document.title, window.location.pathname);
+          
+          // Force a page reload to update the header state
+          window.location.reload();
+        } catch (error) {
+          toast.error('Failed to connect to Spotify');
+          console.error('Spotify callback error:', error);
+          
+          // Clear the URL parameters even on error
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      }
+    };
+
+    // Check if this is a Spotify callback
+    handleSpotifyCallback();
+  }, []);
+
   return (
     <Router>
       <AppContainer>

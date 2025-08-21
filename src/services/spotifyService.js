@@ -1,6 +1,8 @@
 // Spotify API configuration
 const SPOTIFY_CLIENT_ID = '957aa328bc7b4e06a53da49f15834b63';
-const REDIRECT_URI = 'https://lyrics-extractor-frontend.vercel.app/';
+const REDIRECT_URI = window.location.hostname === 'localhost' 
+  ? 'http://localhost:3000/' 
+  : 'https://lyrics-extractor-frontend.vercel.app/';
 const SPOTIFY_AUTH_URL = 'https://accounts.spotify.com/authorize';
 const SPOTIFY_API_BASE = 'https://api.spotify.com/v1';
 
