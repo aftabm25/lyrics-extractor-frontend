@@ -7,7 +7,7 @@ import LyricsExtractor from './components/LyricsExtractor';
 import Search from './components/Search';
 import Header from './components/Header';
 import BottomNavigation from './components/BottomNavigation';
-import { hasValidSpotifySession, exchangeCodeForToken, storeSpotifyTokens } from './services/spotifyService';
+import { exchangeCodeForToken, storeSpotifyTokens } from './services/spotifyService';
 import toast from 'react-hot-toast';
 import './styles/App.css';
 
