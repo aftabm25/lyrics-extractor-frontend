@@ -438,7 +438,7 @@ function LyricsDisplay({ lyrics, onReset, initialMeanings = null, autoShowMeanin
               animate={{ opacity: 1, height: 'auto' }}
               transition={{ duration: 0.3 }}
             >
-              {meanings.lyricsMeaning.map((item, index) => (
+              {(Array.isArray(meanings?.lyricsMeaning) ? meanings.lyricsMeaning : []).map((item, index) => (
                 <MeaningItem key={index}>
                   <MeaningLine>
                     {item.Line}

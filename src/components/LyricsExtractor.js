@@ -399,7 +399,7 @@ function LyricsExtractor() {
         characters: lyricsText.length,
         lines: lyricsText ? lyricsText.split('\n').length : 0,
         words: lyricsText ? lyricsText.trim().split(/\s+/).length : 0,
-        _initialMeanings: data.lyricsMeaning || null,
+        _initialMeanings: data.lyricsMeaning ? { lyricsMeaning: data.lyricsMeaning } : null,
       };
       setLyrics(computed);
       toast.success('Analyzed current Spotify track');
