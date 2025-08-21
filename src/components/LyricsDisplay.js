@@ -295,12 +295,16 @@ function LyricsDisplay({ lyrics, onReset }) {
     
     setLoadingMeanings(true);
     try {
-      const meaningData = await getLyricsMeaning({
+      const { data: meaningData, cached } = await getLyricsMeaning({
         lyrics: lyrics.lyrics,
+        title: lyrics.title,
         songId: null,
         customInstructions: "Focus on emotional interpretation, metaphors, and deeper meaning. Keep explanations concise but insightful."
       });
       
+      // eslint-disable-next-line no-console
+      console.log(`[Meaning] Source: ${cached ? 'cache' : 'gemini'}`);
+
       setMeanings(meaningData);
       setShowMeanings(true);
       toast.success('Lyrics meaning generated successfully!');
