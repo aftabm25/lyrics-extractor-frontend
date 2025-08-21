@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { Search, Sparkles } from 'lucide-react';
-import { extractLyrics } from '../services/lyricsService';
+import { Search, Sparkles, Play } from 'lucide-react';
+import { extractLyrics, getLyricsMeaningCached } from '../services/lyricsService';
+import { hasValidSpotifySession, getStoredAccessToken, getCurrentlyPlayingTrack, extractTrackInfo } from '../services/spotifyService';
 import LyricsDisplay from './LyricsDisplay';
 import LoadingSpinner from './LoadingSpinner';
 
@@ -258,12 +259,98 @@ const ErrorMessage = styled(motion.div)`
   }
 `;
 
+// Current Spotify track UI
+const CurrentTrackCard = styled(motion.div)`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: rgba(102, 126, 234, 0.08);
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  border-radius: 16px;
+  margin-bottom: 1.25rem;
+`;
+
+const TrackMain = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+`;
+
+const AlbumArt = styled.img`
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  object-fit: cover;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+`;
+
+const TrackTitle = styled.div`
+  font-weight: 700;
+  color: #1e293b;
+`;
+
+const TrackArtist = styled.div`
+  font-size: 0.9rem;
+  color: #64748b;
+`;
+
+const TrackAlbum = styled.div`
+  font-size: 0.85rem;
+  color: #94a3b8;
+`;
+
+const AnalyzeButton = styled(motion.button)`
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 8px 20px rgba(102,126,234,0.35);
+  transition: all 0.2s ease;
+`;
+
 function LyricsExtractor() {
   const [lyrics, setLyrics] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isSpotifyConnected, setIsSpotifyConnected] = useState(false);
+  const [currentTrack, setCurrentTrack] = useState(null);
+  const [analyzingCurrent, setAnalyzingCurrent] = useState(false);
   
   const { register, handleSubmit, formState: { errors }, reset } = useForm();
+
+  useEffect(() => {
+    const checkConnAndFetch = async () => {
+      const connected = hasValidSpotifySession();
+      setIsSpotifyConnected(connected);
+      if (!connected) return;
+      const token = getStoredAccessToken();
+      if (!token) return;
+      try {
+        const nowPlaying = await getCurrentlyPlayingTrack(token);
+        if (nowPlaying) {
+          const info = extractTrackInfo(nowPlaying);
+          setCurrentTrack(info);
+        } else {
+          setCurrentTrack(null);
+        }
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log('Current track fetch failed:', e?.message || e);
+      }
+    };
+    checkConnAndFetch();
+    const interval = setInterval(checkConnAndFetch, 15000);
+    return () => clearInterval(interval);
+  }, []);
 
   const onSubmit = async (data) => {
     if (!data.song_name.trim()) {
@@ -292,6 +379,37 @@ function LyricsExtractor() {
     reset();
   };
 
+  const analyzeCurrentSong = async () => {
+    if (!currentTrack || analyzingCurrent) return;
+    setAnalyzingCurrent(true);
+    setError('');
+    try {
+      const songName = `${currentTrack.name} ${currentTrack.artist}`;
+      const { data } = await getLyricsMeaningCached({
+        songId: currentTrack.id,
+        title: currentTrack.name,
+        artist: currentTrack.artist,
+        songName
+      });
+      const lyricsText = data.lyrics || '';
+      const computed = {
+        title: data.title || `${currentTrack.artist} – ${currentTrack.name}`,
+        lyrics: lyricsText,
+        song_name: songName,
+        characters: lyricsText.length,
+        lines: lyricsText ? lyricsText.split('\n').length : 0,
+        words: lyricsText ? lyricsText.trim().split(/\s+/).length : 0,
+        _initialMeanings: data.lyricsMeaning || null,
+      };
+      setLyrics(computed);
+      toast.success('Analyzed current Spotify track');
+    } catch (e) {
+      toast.error(e.message || 'Failed to analyze current track');
+    } finally {
+      setAnalyzingCurrent(false);
+    }
+  };
+
   if (lyrics) {
     return (
       <motion.div
@@ -299,7 +417,7 @@ function LyricsExtractor() {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
       >
-        <LyricsDisplay lyrics={lyrics} onReset={handleReset} />
+        <LyricsDisplay lyrics={lyrics} onReset={handleReset} initialMeanings={lyrics._initialMeanings || null} autoShowMeanings={!!lyrics._initialMeanings} />
       </motion.div>
     );
   }
@@ -314,6 +432,28 @@ function LyricsExtractor() {
       <Subtitle>
         Unlock the hidden stories behind your favorite lyrics with AI-powered analysis
       </Subtitle>
+
+      {isSpotifyConnected && currentTrack && (
+        <CurrentTrackCard initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <TrackMain>
+            {currentTrack.albumArt && <AlbumArt src={currentTrack.albumArt} alt="Album" />}
+            <div>
+              <TrackTitle>{currentTrack.name}</TrackTitle>
+              <TrackArtist>{currentTrack.artist}</TrackArtist>
+              <TrackAlbum>{currentTrack.album}</TrackAlbum>
+            </div>
+          </TrackMain>
+          <AnalyzeButton
+            onClick={analyzeCurrentSong}
+            disabled={analyzingCurrent}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            {analyzingCurrent ? <LoadingSpinner /> : <Play size={18} />}
+            {analyzingCurrent ? 'Analyzing current song...' : 'Analyze current song'}
+          </AnalyzeButton>
+        </CurrentTrackCard>
+      )}
 
       <Form onSubmit={handleSubmit(onSubmit)}>
         <InputGroup>

@@ -253,11 +253,19 @@ const LoadingSpinner = styled.div`
   }
 `;
 
-function LyricsDisplay({ lyrics, onReset }) {
+function LyricsDisplay({ lyrics, onReset, initialMeanings = null, autoShowMeanings = false }) {
   const [showCopySuccess, setShowCopySuccess] = useState(false);
-  const [meanings, setMeanings] = useState(null);
+  const [meanings, setMeanings] = useState(initialMeanings);
   const [loadingMeanings, setLoadingMeanings] = useState(false);
-  const [showMeanings, setShowMeanings] = useState(false);
+  const [showMeanings, setShowMeanings] = useState(autoShowMeanings && !!initialMeanings);
+
+  React.useEffect(() => {
+    if (initialMeanings) {
+      setMeanings(initialMeanings);
+      if (autoShowMeanings) setShowMeanings(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialMeanings]);
 
   const handleCopy = async () => {
     try {

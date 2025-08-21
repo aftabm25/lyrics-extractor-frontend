@@ -139,3 +139,47 @@ export const getLyricsMeaning = async ({ lyrics, songId, title, artist, customIn
     throw new Error(error.message || 'An unexpected error occurred while getting lyrics meaning');
   }
 };
+
+/**
+ * Get lyrics + meaning using cached endpoint (Supabase-backed)
+ * Falls back to generating and storing when cache miss
+ */
+export const getLyricsMeaningCached = async ({ songId, title, artist, songName, lyrics, customInstructions }) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/lyrics/meaning/cached`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        songId,
+        title,
+        artist,
+        song_name: songName,
+        lyrics,
+        customInstructions,
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (!data.success) {
+      throw new Error(data.error || 'Failed to get lyrics meaning (cached)');
+    }
+
+    // eslint-disable-next-line no-console
+    console.log(`[MeaningCached] Source: ${data.cached ? 'cache' : 'generated+stored'}`);
+
+    return { data: data.data, cached: data.cached === true };
+  } catch (error) {
+    console.error('Lyrics meaning (cached) error:', error);
+    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      throw new Error('Network error: Unable to connect to the server. Please check your internet connection.');
+    }
+    throw new Error(error.message || 'An unexpected error occurred while getting lyrics meaning (cached)');
+  }
+};
