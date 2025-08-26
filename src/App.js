@@ -12,12 +12,30 @@ import toast from 'react-hot-toast';
 import './styles/App.css';
 
 const AppContainer = styled.div`
-  min-height: 100vh;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #533483 75%, #7209b7 100%);
+  height: 100vh;
+  width: 100vw;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
   background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
+  animation: gradientShift 20s ease infinite;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
   
   @keyframes gradientShift {
     0% { background-position: 0% 50%; }
@@ -32,9 +50,10 @@ const MainContent = styled(motion.main)`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
-  padding-bottom: 6rem; /* Add bottom padding for mobile nav */
+  padding: 0;
   position: relative;
+  overflow: hidden;
+  z-index: 1;
   
   &::before {
     content: '';
@@ -43,13 +62,9 @@ const MainContent = styled(motion.main)`
     left: 0;
     right: 0;
     bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="music-notes" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse"><text x="50" y="50" font-family="Arial" font-size="8" fill="rgba(255,255,255,0.03)" text-anchor="middle">♪♫♬</text></pattern></defs><rect width="100" height="100" fill="url(%23music-notes)"/></svg>');
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="music-notes" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse"><text x="50" y="50" font-family="Arial" font-size="6" fill="rgba(255,255,255,0.02)" text-anchor="middle">♪♫♬</text></pattern></defs><rect width="100" height="100" fill="url(%23music-notes)"/></svg>');
     pointer-events: none;
     z-index: 0;
-  }
-  
-  @media (min-width: 768px) {
-    padding-bottom: 2rem; /* Reset padding for desktop */
   }
 `;
 
@@ -57,7 +72,12 @@ const ContentWrapper = styled.div`
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 1200px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  box-sizing: border-box;
 `;
 
 function App() {

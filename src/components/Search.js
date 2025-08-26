@@ -9,16 +9,20 @@ import LyricsDisplay from './LyricsDisplay';
 import LoadingSpinner from './LoadingSpinner';
 
 const Container = styled(motion.div)`
-  max-width: 800px;
+  max-width: 900px;
   width: 100%;
-  background: rgba(255, 255, 255, 0.98);
-  border-radius: 30px;
+  max-height: 90vh;
+  background: rgba(15, 15, 35, 0.95);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border-radius: 32px;
   padding: 3rem;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
   
   &::before {
     content: '';
@@ -29,7 +33,7 @@ const Container = styled(motion.div)`
     height: 200%;
     background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
     transform: rotate(45deg);
-    animation: shimmer 3s infinite;
+    animation: shimmer 4s infinite;
     pointer-events: none;
   }
   
@@ -40,28 +44,31 @@ const Container = styled(motion.div)`
   
   @media (max-width: 768px) {
     padding: 2rem 1.5rem;
-    border-radius: 20px;
+    border-radius: 24px;
     margin: 0 1rem;
+    max-height: 85vh;
   }
   
   @media (max-width: 480px) {
     padding: 1.5rem 1rem;
-    border-radius: 15px;
+    border-radius: 20px;
     margin: 0 0.5rem;
+    max-height: 80vh;
   }
 `;
 
 const Title = styled.h1`
   text-align: center;
-  background: linear-gradient(135deg, #667eea, #764ba2, #f093fb, #f5576c);
+  background: linear-gradient(135deg, #60a5fa, #a78bfa, #f093fb, #f5576c);
   background-size: 300% 300%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  margin-bottom: 0.5rem;
-  font-size: 3.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 4rem;
   font-weight: 800;
   animation: gradientFlow 4s ease infinite;
+  letter-spacing: -0.02em;
   
   @keyframes gradientFlow {
     0% { background-position: 0% 50%; }
@@ -70,61 +77,64 @@ const Title = styled.h1`
   }
   
   @media (max-width: 768px) {
-    font-size: 2.5rem;
-    margin-bottom: 0.25rem;
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
   }
   
   @media (max-width: 480px) {
-    font-size: 2rem;
+    font-size: 2.5rem;
     margin-bottom: 0.25rem;
   }
 `;
 
 const Subtitle = styled.p`
   text-align: center;
-  color: #64748b;
-  margin-bottom: 3rem;
-  font-size: 1.3rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 3.5rem;
+  font-size: 1.4rem;
   font-weight: 500;
   line-height: 1.6;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
   
   @media (max-width: 768px) {
-    font-size: 1.1rem;
-    margin-bottom: 2rem;
-    padding: 0 0.5rem;
+    font-size: 1.2rem;
+    margin-bottom: 2.5rem;
+    padding: 0 1rem;
   }
   
   @media (max-width: 480px) {
-    font-size: 1rem;
-    margin-bottom: 1.5rem;
-    padding: 0 0.25rem;
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    padding: 0 0.5rem;
   }
 `;
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
   margin-bottom: 2rem;
   
   @media (max-width: 480px) {
-    gap: 1rem;
-    margin-bottom: 1rem;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
   }
 `;
 
 const InputGroup = styled.div`
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
   position: relative;
   
   @media (max-width: 768px) {
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.5rem;
   }
   
   @media (max-width: 480px) {
-    gap: 0.75rem;
+    gap: 1.25rem;
   }
 `;
 
@@ -137,78 +147,80 @@ const InputWrapper = styled.div`
 
 const Input = styled.input`
   width: 100%;
-  padding: 1.25rem 1.5rem 1.25rem 3.5rem;
-  border: 2px solid #e2e8f0;
-  border-radius: 20px;
-  font-size: 1.1rem;
+  padding: 1.5rem 1.75rem 1.5rem 4rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  font-size: 1.2rem;
   transition: all 0.3s ease;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  color: white;
   
   &:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-    background: white;
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.1), 0 8px 25px rgba(96, 165, 250, 0.15);
+    background: rgba(255, 255, 255, 0.15);
     transform: translateY(-2px);
   }
   
   &::placeholder {
-    color: #94a3b8;
+    color: rgba(255, 255, 255, 0.6);
     font-weight: 500;
   }
   
   @media (max-width: 768px) {
-    padding: 1rem 1.25rem 1rem 3rem;
-    font-size: 1rem;
-    border-radius: 15px;
+    padding: 1.25rem 1.5rem 1.25rem 3.5rem;
+    font-size: 1.1rem;
+    border-radius: 20px;
   }
   
   @media (max-width: 480px) {
-    padding: 0.875rem 1rem 0.875rem 3rem;
-    font-size: 0.95rem;
-    border-radius: 12px;
+    padding: 1.125rem 1.25rem 1.125rem 3.25rem;
+    font-size: 1rem;
+    border-radius: 18px;
   }
 `;
 
 const SearchIconWrapper = styled.div`
   position: absolute;
-  left: 1.25rem;
+  left: 1.5rem;
   top: 50%;
   transform: translateY(-50%);
-  color: #94a3b8;
+  color: rgba(255, 255, 255, 0.6);
   z-index: 2;
   pointer-events: none;
   
   @media (max-width: 768px) {
-    left: 1rem;
+    left: 1.25rem;
   }
   
   @media (max-width: 480px) {
-    left: 0.875rem;
+    left: 1.125rem;
   }
 `;
 
 const Button = styled(motion.button)`
-  padding: 1.25rem 2.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 1.5rem 3rem;
+  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
   color: white;
   border: none;
-  border-radius: 20px;
-  font-size: 1.1rem;
+  border-radius: 24px;
+  font-size: 1.2rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  gap: 1rem;
+  box-shadow: 0 8px 25px rgba(96, 165, 250, 0.3);
   white-space: nowrap;
   
   &:hover {
     transform: translateY(-3px);
-    box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 15px 35px rgba(96, 165, 250, 0.4);
   }
   
   &:disabled {
@@ -218,43 +230,43 @@ const Button = styled(motion.button)`
   }
   
   @media (max-width: 768px) {
-    padding: 1rem 2rem;
-    font-size: 1rem;
-    border-radius: 15px;
-    gap: 0.5rem;
+    padding: 1.25rem 2.5rem;
+    font-size: 1.1rem;
+    border-radius: 20px;
+    gap: 0.75rem;
   }
   
   @media (max-width: 480px) {
-    padding: 0.875rem 1.5rem;
-    font-size: 0.95rem;
-    border-radius: 12px;
-    gap: 0.5rem;
+    padding: 1.125rem 2rem;
+    font-size: 1rem;
+    border-radius: 18px;
+    gap: 0.75rem;
   }
 `;
 
 const ErrorMessage = styled(motion.div)`
-  color: #dc2626;
+  color: #fca5a5;
   text-align: center;
-  margin-top: 1rem;
-  padding: 1rem 1.5rem;
-  background: linear-gradient(135deg, #fef2f2, #fee2e2);
-  border: 1px solid #fecaca;
-  border-radius: 15px;
-  font-weight: 500;
-  box-shadow: 0 4px 15px rgba(220, 38, 38, 0.1);
+  margin-top: 1.5rem;
+  padding: 1.25rem 1.75rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 20px;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.1);
   
   @media (max-width: 768px) {
-    margin-top: 0.75rem;
-    padding: 0.875rem 1.25rem;
-    border-radius: 12px;
-    font-size: 0.95rem;
+    margin-top: 1.25rem;
+    padding: 1rem 1.5rem;
+    border-radius: 16px;
+    font-size: 1rem;
   }
   
   @media (max-width: 480px) {
-    margin-top: 0.5rem;
-    padding: 0.75rem 1rem;
-    border-radius: 10px;
-    font-size: 0.9rem;
+    margin-top: 1rem;
+    padding: 0.875rem 1.25rem;
+    border-radius: 14px;
+    font-size: 0.95rem;
   }
 `;
 

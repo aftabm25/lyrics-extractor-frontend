@@ -5,20 +5,22 @@ import { LogOut, Music, Sparkles } from 'lucide-react';
 import { hasValidSpotifySession, clearSpotifySession, getSpotifyAuthURL, getStoredAccessToken, getUserProfile } from '../services/spotifyService';
 
 const HeaderContainer = styled.header`
-  background: rgba(26, 26, 46, 0.3);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 1rem 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 1.25rem 2rem;
   position: sticky;
   top: 0;
   z-index: 100;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   
   @media (max-width: 768px) {
-    padding: 0.875rem 1.25rem;
+    padding: 1rem 1.5rem;
   }
   
   @media (max-width: 480px) {
-    padding: 0.75rem 1rem;
+    padding: 0.875rem 1.25rem;
   }
 `;
 
@@ -37,31 +39,32 @@ const HeaderContent = styled.div`
 const LeftSection = styled.div`
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.5rem;
   
   @media (max-width: 768px) {
-    gap: 0.75rem;
+    gap: 1rem;
   }
   
   @media (max-width: 480px) {
-    gap: 0.5rem;
+    gap: 0.75rem;
   }
 `;
 
 const Logo = styled(motion.div)`
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
   color: white;
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 800;
   text-decoration: none;
-  background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+  background: linear-gradient(135deg, #ffffff, #f8fafc, #e2e8f0);
   background-size: 300% 300%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: gradientFlow 3s ease infinite;
+  animation: gradientFlow 4s ease infinite;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   
   @keyframes gradientFlow {
     0% { background-position: 0% 50%; }
@@ -75,13 +78,13 @@ const Logo = styled(motion.div)`
   }
   
   @media (max-width: 768px) {
-    font-size: 1.25rem;
-    gap: 0.5rem;
+    font-size: 1.5rem;
+    gap: 0.75rem;
   }
   
   @media (max-width: 480px) {
-    font-size: 1.1rem;
-    gap: 0.4rem;
+    font-size: 1.25rem;
+    gap: 0.5rem;
   }
 `;
 
@@ -89,15 +92,15 @@ const LogoIcon = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 2rem;
+  font-size: 2.25rem;
   
   @media (max-width: 768px) {
-    font-size: 1.75rem;
+    font-size: 2rem;
     gap: 0.4rem;
   }
   
   @media (max-width: 480px) {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     gap: 0.3rem;
   }
 `;
@@ -111,53 +114,69 @@ const LogoText = styled.span`
 const BackendStatus = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  background: rgba(72, 187, 120, 0.1);
-  border: 1px solid rgba(72, 187, 120, 0.3);
-  border-radius: 20px;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 0.8rem;
-  font-weight: 500;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: rgba(34, 197, 94, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 25px;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2);
   
   @media (max-width: 768px) {
-    padding: 0.4rem 0.6rem;
-    font-size: 0.75rem;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.8rem;
   }
   
   @media (max-width: 480px) {
-    padding: 0.3rem 0.5rem;
-    font-size: 0.7rem;
-    gap: 0.4rem;
+    padding: 0.5rem 0.7rem;
+    font-size: 0.75rem;
+    gap: 0.5rem;
   }
 `;
 
 const StatusDot = styled.div`
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: #48bb78;
+  background: #22c55e;
   animation: pulse 2s infinite;
-  box-shadow: 0 0 8px rgba(72, 187, 120, 0.5);
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
   
   @keyframes pulse {
     0% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.7; transform: scale(1.2); }
+    50% { opacity: 0.7; transform: scale(1.3); }
     100% { opacity: 1; transform: scale(1); }
   }
   
   @media (max-width: 480px) {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
   }
 `;
 
 const RightSection = styled.div`
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.25rem;
   
   @media (max-width: 768px) {
+    gap: 1rem;
+  }
+  
+  @media (max-width: 480px) {
+    gap: 0.75rem;
+  }
+`;
+
+const SpotifySection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  
+  @media (max-width: 640px) {
     gap: 0.75rem;
   }
   
@@ -166,74 +185,63 @@ const RightSection = styled.div`
   }
 `;
 
-const SpotifySection = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  
-  @media (max-width: 640px) {
-    gap: 0.5rem;
-  }
-  
-  @media (max-width: 480px) {
-    gap: 0.4rem;
-  }
-`;
-
 const SpotifyProfile = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 0.75rem;
-  background: rgba(29, 185, 84, 0.1);
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(29, 185, 84, 0.15);
+  backdrop-filter: blur(10px);
   border: 1px solid rgba(29, 185, 84, 0.3);
-  border-radius: 20px;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 0.8rem;
-  font-weight: 500;
+  border-radius: 25px;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(29, 185, 84, 0.2);
   
   @media (max-width: 768px) {
-    padding: 0.4rem 0.6rem;
-    font-size: 0.75rem;
-    gap: 0.6rem;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.8rem;
+    gap: 0.75rem;
   }
   
   @media (max-width: 640px) {
     .profile-text {
       display: none;
     }
-    gap: 0.5rem;
+    gap: 0.6rem;
   }
   
   @media (max-width: 480px) {
-    padding: 0.3rem 0.5rem;
-    font-size: 0.7rem;
-    gap: 0.4rem;
+    padding: 0.5rem 0.7rem;
+    font-size: 0.75rem;
+    gap: 0.5rem;
   }
 `;
 
 const ProfileImage = styled.img`
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid rgba(29, 185, 84, 0.5);
+  box-shadow: 0 2px 8px rgba(29, 185, 84, 0.3);
   
   @media (max-width: 768px) {
+    width: 32px;
+    height: 32px;
+    border-width: 1.5px;
+  }
+  
+  @media (max-width: 640px) {
     width: 28px;
     height: 28px;
     border-width: 1.5px;
   }
   
-  @media (max-width: 640px) {
-    width: 24px;
-    height: 24px;
-    border-width: 1.5px;
-  }
-  
   @media (max-width: 480px) {
-    width: 22px;
-    height: 22px;
+    width: 26px;
+    height: 26px;
     border-width: 1px;
   }
 `;
@@ -268,29 +276,29 @@ const SpotifyIcon = styled.div`
 `;
 
 const LogoutButton = styled(motion.button)`
-  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  background: linear-gradient(135deg, #ef4444, #dc2626);
   color: white;
   border: none;
-  border-radius: 20px;
-  padding: 0.5rem 1rem;
-  font-size: 0.8rem;
+  border-radius: 25px;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
   
   &:hover {
-    background: linear-gradient(135deg, #ee5a24, #ff6b6b);
+    background: linear-gradient(135deg, #dc2626, #ef4444);
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
   }
   
   @media (max-width: 768px) {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.75rem;
+    padding: 0.6rem 1rem;
+    font-size: 0.8rem;
     gap: 0.4rem;
   }
   
@@ -298,26 +306,26 @@ const LogoutButton = styled(motion.button)`
     .logout-text {
       display: none;
     }
-    padding: 0.4rem 0.6rem;
+    padding: 0.6rem 0.8rem;
     gap: 0.3rem;
   }
   
   @media (max-width: 480px) {
-    padding: 0.3rem 0.5rem;
-    font-size: 0.7rem;
+    padding: 0.5rem 0.7rem;
+    font-size: 0.75rem;
     gap: 0.3rem;
-    min-width: 40px;
+    min-width: 44px;
     justify-content: center;
   }
 `;
 
 const ConnectButton = styled(motion.button)`
-  background: linear-gradient(135deg, #1db954, #1ed760);
+  background: linear-gradient(135deg, #22c55e, #16a34a);
   color: white;
   border: none;
-  border-radius: 20px;
-  padding: 0.5rem 1rem;
-  font-size: 0.8rem;
+  border-radius: 25px;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
   display: flex;
@@ -325,33 +333,33 @@ const ConnectButton = styled(motion.button)`
   justify-content: center;
   gap: 0.5rem;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(29, 185, 84, 0.3);
+  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
   white-space: nowrap;
   
   &:hover {
-    background: linear-gradient(135deg, #1ed760, #1db954);
+    background: linear-gradient(135deg, #16a34a, #22c55e);
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(29, 185, 84, 0.4);
+    box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
   }
   
   @media (max-width: 768px) {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.75rem;
+    padding: 0.6rem 1rem;
+    font-size: 0.8rem;
     gap: 0.4rem;
   }
   
   @media (max-width: 640px) {
-    padding: 0.4rem 0.7rem;
-    font-size: 0.7rem;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.75rem;
     gap: 0.3rem;
   }
   
   @media (max-width: 480px) {
-    padding: 0.3rem 0.6rem;
-    font-size: 0.65rem;
+    padding: 0.5rem 0.7rem;
+    font-size: 0.7rem;
     gap: 0.3rem;
-    min-width: 100px;
-    max-width: 120px;
+    min-width: 110px;
+    max-width: 130px;
   }
 `;
 

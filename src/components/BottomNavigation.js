@@ -6,7 +6,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 const BottomNavContainer = styled.nav`
   position: fixed;
-  bottom: 2rem;
+  bottom: 1.5rem;
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
@@ -19,52 +19,54 @@ const BottomNavContainer = styled.nav`
 const NavItems = styled.div`
   display: flex;
   align-items: center;
-  gap: 2rem;
-  background: rgba(26, 26, 46, 0.3);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 2.5rem;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50px;
-  padding: 0.75rem 1.5rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  padding: 1rem 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
 `;
 
 const NavItem = styled(motion.button)`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.5rem;
   background: ${props => props.active ? 'linear-gradient(135deg, #667eea, #764ba2)' : 'none'};
   border: none;
-  color: ${props => props.active ? 'white' : 'rgba(255, 255, 255, 0.6)'};
+  color: ${props => props.active ? 'white' : 'rgba(255, 255, 255, 0.8)'};
   cursor: pointer;
-  padding: 0.75rem;
+  padding: 1rem;
   border-radius: 50%;
   transition: all 0.3s ease;
-  min-width: 56px;
-  min-height: 56px;
+  min-width: 64px;
+  min-height: 64px;
   position: relative;
-  box-shadow: ${props => props.active ? '0 4px 20px rgba(102, 126, 234, 0.4)' : 'none'};
+  box-shadow: ${props => props.active ? '0 8px 25px rgba(102, 126, 234, 0.4)' : 'none'};
   
   &:hover {
     color: ${props => props.active ? 'white' : 'white'};
-    background: ${props => props.active ? 'linear-gradient(135deg, #667eea, #764ba2)' : 'rgba(255, 255, 255, 0.1)'};
+    background: ${props => props.active ? 'linear-gradient(135deg, #667eea, #764ba2)' : 'rgba(255, 255, 255, 0.15)'};
     transform: ${props => props.active ? 'scale(1.05)' : 'scale(1.1)'};
   }
 `;
 
 const NavIcon = styled.div`
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
 `;
 
 const NavLabel = styled.span`
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 600;
   text-align: center;
   margin-top: 0.25rem;
-  color: ${props => props.active ? 'white' : 'rgba(255, 255, 255, 0.6)'};
+  color: ${props => props.active ? 'white' : 'rgba(255, 255, 255, 0.8)'};
+  letter-spacing: 0.5px;
 `;
 
 function BottomNavigation() {
@@ -93,6 +95,7 @@ function BottomNavigation() {
           <NavLabel active={isHome}>Home</NavLabel>
         </NavItem>
 
+        {/* Search navigation temporarily disabled - uncomment to re-enable
         <NavItem
           active={isSearch}
           onClick={() => handleNavigation('/search')}
@@ -104,6 +107,7 @@ function BottomNavigation() {
           </NavIcon>
           <NavLabel active={isSearch}>Search</NavLabel>
         </NavItem>
+        */}
       </NavItems>
     </BottomNavContainer>
   );

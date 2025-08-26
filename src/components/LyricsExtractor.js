@@ -9,16 +9,20 @@ import LyricsDisplay from './LyricsDisplay';
 import LoadingSpinner from './LoadingSpinner';
 
 const Container = styled(motion.div)`
-  max-width: 800px;
+  max-width: 900px;
   width: 100%;
-  background: rgba(255, 255, 255, 0.98);
-  border-radius: 30px;
+  max-height: 90vh;
+  background: rgba(15, 15, 35, 0.95);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border-radius: 32px;
   padding: 3rem;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
   
   &::before {
     content: '';
@@ -29,7 +33,7 @@ const Container = styled(motion.div)`
     height: 200%;
     background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
     transform: rotate(45deg);
-    animation: shimmer 3s infinite;
+    animation: shimmer 4s infinite;
     pointer-events: none;
   }
   
@@ -40,28 +44,31 @@ const Container = styled(motion.div)`
   
   @media (max-width: 768px) {
     padding: 2rem 1.5rem;
-    border-radius: 20px;
+    border-radius: 24px;
     margin: 0 1rem;
+    max-height: 85vh;
   }
   
   @media (max-width: 480px) {
     padding: 1.5rem 1rem;
-    border-radius: 15px;
+    border-radius: 20px;
     margin: 0 0.5rem;
+    max-height: 80vh;
   }
 `;
 
 const Title = styled.h1`
   text-align: center;
-  background: linear-gradient(135deg, #667eea, #764ba2, #f093fb, #f5576c);
+  background: linear-gradient(135deg, #60a5fa, #a78bfa, #f093fb, #f5576c);
   background-size: 300% 300%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  margin-bottom: 0.5rem;
-  font-size: 3.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 4rem;
   font-weight: 800;
   animation: gradientFlow 4s ease infinite;
+  letter-spacing: -0.02em;
   
   @keyframes gradientFlow {
     0% { background-position: 0% 50%; }
@@ -70,34 +77,37 @@ const Title = styled.h1`
   }
   
   @media (max-width: 768px) {
-    font-size: 2.5rem;
-    margin-bottom: 0.25rem;
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
   }
   
   @media (max-width: 480px) {
-    font-size: 2rem;
+    font-size: 2.5rem;
     margin-bottom: 0.25rem;
   }
 `;
 
 const Subtitle = styled.p`
   text-align: center;
-  color: #64748b;
-  margin-bottom: 2rem;
-  font-size: 1.3rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 2.5rem;
+  font-size: 1.4rem;
   font-weight: 500;
   line-height: 1.6;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
   
   @media (max-width: 768px) {
-    font-size: 1.1rem;
-    margin-bottom: 1.5rem;
-    padding: 0 0.5rem;
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    padding: 0 1rem;
   }
   
   @media (max-width: 480px) {
-    font-size: 1rem;
-    margin-bottom: 1.25rem;
-    padding: 0 0.25rem;
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    padding: 0 0.5rem;
   }
 `;
 
@@ -108,57 +118,112 @@ const CurrentTrackCard = styled(motion.div)`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem 1.25rem;
-  background: rgba(102, 126, 234, 0.08);
-  border: 1px solid rgba(102, 126, 234, 0.2);
-  border-radius: 16px;
-  margin-bottom: 1.25rem;
+  gap: 1.5rem;
+  padding: 1.5rem 1.75rem;
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border: 1px solid rgba(96, 165, 250, 0.2);
+  border-radius: 20px;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 25px rgba(96, 165, 250, 0.15);
+  backdrop-filter: blur(10px);
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+  }
 `;
 
 const TrackMain = styled.div`
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.25rem;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
 `;
 
 const AlbumArt = styled.img`
-  width: 56px;
-  height: 56px;
-  border-radius: 10px;
+  width: 72px;
+  height: 72px;
+  border-radius: 16px;
   object-fit: cover;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+  
+  @media (max-width: 768px) {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+  }
 `;
 
 const TrackTitle = styled.div`
   font-weight: 700;
-  color: #1e293b;
+  color: white;
+  font-size: 1.25rem;
+  
+  @media (max-width: 768px) {
+    font-size: 1.1rem;
+  }
 `;
 
 const TrackArtist = styled.div`
-  font-size: 0.9rem;
-  color: #64748b;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 0.25rem;
+  
+  @media (max-width: 768px) {
+    font-size: 0.95rem;
+  }
 `;
 
 const TrackAlbum = styled.div`
-  font-size: 0.85rem;
-  color: #94a3b8;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 0.25rem;
+  
+  @media (max-width: 768px) {
+    font-size: 0.85rem;
+  }
 `;
 
 const AnalyzeButton = styled(motion.button)`
-  padding: 0.75rem 1rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
   color: white;
   border: none;
-  border-radius: 12px;
-  font-size: 0.95rem;
+  border-radius: 16px;
+  font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  box-shadow: 0 8px 20px rgba(102,126,234,0.35);
-  transition: all 0.2s ease;
+  gap: 0.75rem;
+  box-shadow: 0 8px 25px rgba(96, 165, 250, 0.4);
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(96, 165, 250, 0.5);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  @media (max-width: 768px) {
+    width: 100%;
+    justify-content: center;
+    padding: 0.875rem 1.25rem;
+    font-size: 0.95rem;
+  }
 `;
 
 function LyricsExtractor() {
