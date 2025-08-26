@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { Home, Search } from 'lucide-react';
+import { Home } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const BottomNavContainer = styled.nav`
@@ -74,7 +74,6 @@ function BottomNavigation() {
   const navigate = useNavigate();
   
   const isHome = location.pathname === '/';
-  const isSearch = location.pathname === '/search';
 
   const handleNavigation = (path) => {
     navigate(path);
