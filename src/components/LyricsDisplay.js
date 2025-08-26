@@ -153,18 +153,18 @@ const MeaningTitle = styled.h4`
 `;
 
 const MeaningItem = styled(motion.div)`
-  margin-bottom: 2rem;
-  padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+  padding: 1.25rem;
+  background: rgba(30, 41, 59, 0.6);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   transition: all 0.3s ease;
   
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+    border-color: rgba(255, 255, 255, 0.15);
   }
   
   &:last-child {
@@ -173,58 +173,29 @@ const MeaningItem = styled(motion.div)`
 `;
 
 const MeaningLine = styled.div`
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   color: white;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   font-weight: 600;
-  line-height: 1.5;
+  line-height: 1.4;
   display: flex;
   align-items: flex-start;
-  gap: 1rem;
+  gap: 0.75rem;
   flex-wrap: wrap;
 `;
 
 const MeaningText = styled.div`
-  font-size: 1rem;
-  color: rgba(255, 255, 255, 0.8);
-  line-height: 1.7;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.6;
   font-style: normal;
-  background: rgba(96, 165, 250, 0.05);
-  padding: 1rem;
-  border-radius: 12px;
-  border-left: 4px solid rgba(96, 165, 250, 0.4);
+  background: rgba(96, 165, 250, 0.03);
+  padding: 0.75rem;
+  border-radius: 8px;
+  border-left: 3px solid rgba(96, 165, 250, 0.3);
 `;
 
-const MeaningType = styled.span`
-  display: inline-flex;
-  align-items: center;
-  padding: 0.5rem 1rem;
-  border-radius: 25px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-  flex-shrink: 0;
-`;
 
-const LyricType = styled(MeaningType)`
-  background: linear-gradient(135deg, #374151, #4b5563);
-  color: #d1d5db;
-  border: 1px solid #6b7280;
-`;
-
-const MeaningTypeBadge = styled(MeaningType)`
-  background: linear-gradient(135deg, #059669, #10b981);
-  color: white;
-  border: 1px solid #34d399;
-`;
-
-const StanzaType = styled(MeaningType)`
-  background: linear-gradient(135deg, #dc2626, #ef4444);
-  color: white;
-  border: 1px solid #f87171;
-`;
 
 const EmptyState = styled.div`
   text-align: center;
@@ -383,18 +354,7 @@ function LyricsDisplay({ lyrics, onReset, initialMeanings = null, autoShowMeanin
     return num.toLocaleString();
   };
 
-  const getTypeBadge = (type) => {
-    switch (type) {
-      case 'Lyric':
-        return <LyricType>{type}</LyricType>;
-      case 'Meaning':
-        return <MeaningTypeBadge>{type}</MeaningTypeBadge>;
-      case 'Stanza':
-        return <StanzaType>{type}</StanzaType>;
-      default:
-        return <MeaningType>{type}</MeaningType>;
-    }
-  };
+
 
   const renderJsonValue = (value, depth = 0) => {
     const indent = '  '.repeat(depth);
@@ -490,35 +450,81 @@ function LyricsDisplay({ lyrics, onReset, initialMeanings = null, autoShowMeanin
       );
     }
 
+    // Group lyrics and meanings together, with stanzas as separators
+    const groupedContent = [];
+    let currentGroup = [];
+    
+    meaningsArray.forEach((item, index) => {
+      if (item.Type === 'Stanza') {
+        // If we have a group, add it to groupedContent
+        if (currentGroup.length > 0) {
+          groupedContent.push({ type: 'group', items: currentGroup });
+          currentGroup = [];
+        }
+        // Add the stanza as a separator
+        groupedContent.push({ type: 'stanza', item });
+      } else {
+        // Add lyric/meaning to current group
+        currentGroup.push(item);
+      }
+    });
+    
+    // Add the last group if it exists
+    if (currentGroup.length > 0) {
+      groupedContent.push({ type: 'group', items: currentGroup });
+    }
+
     return (
       <>
-        {meaningsArray.map((item, index) => (
-          <MeaningItem 
-            key={item.LineNo || index}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: index * 0.1 }}
-          >
-            <MeaningLine>
-              {item.Line}
-              {getTypeBadge(item.Type)}
-            </MeaningLine>
-            {item.Type === 'Lyric' && (
-              <MeaningText>
-                <strong>Original lyric line</strong>
-              </MeaningText>
+        {groupedContent.map((section, sectionIndex) => (
+          <div key={sectionIndex}>
+            {section.type === 'group' && (
+              <div style={{ marginBottom: '2rem' }}>
+                {section.items.map((item, index) => {
+                  if (item.Type === 'Lyric') {
+                    // Find the corresponding meaning
+                    const meaning = section.items.find(m => m.Type === 'Meaning' && m.LineNo === item.LineNo + 1);
+                    return (
+                      <MeaningItem 
+                        key={item.LineNo || index}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: (sectionIndex * 0.2) + (index * 0.1) }}
+                      >
+                        <MeaningLine>
+                          <strong style={{ fontSize: '1.1rem', color: 'white' }}>{item.Line}</strong>
+                        </MeaningLine>
+                        {meaning && (
+                          <MeaningText style={{ marginTop: '0.5rem', fontSize: '0.95rem', color: 'rgba(255, 255, 255, 0.8)' }}>
+                            {meaning.Line}
+                          </MeaningText>
+                        )}
+                      </MeaningItem>
+                    );
+                  }
+                  return null; // Skip meanings as they're handled above
+                })}
+              </div>
             )}
-            {item.Type === 'Meaning' && (
-              <MeaningText>
-                <strong>Interpretation:</strong> {item.Line}
-              </MeaningText>
+            
+            {section.type === 'stanza' && (
+              <MeaningItem 
+                key={`stanza-${sectionIndex}`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: sectionIndex * 0.2 }}
+                style={{ 
+                  background: 'rgba(220, 38, 38, 0.1)', 
+                  border: '1px solid rgba(220, 38, 38, 0.3)',
+                  marginBottom: '1.5rem'
+                }}
+              >
+                <MeaningLine>
+                  <strong style={{ color: '#fca5a5' }}>📝 {section.item.Line}</strong>
+                </MeaningLine>
+              </MeaningItem>
             )}
-            {item.Type === 'Stanza' && (
-              <MeaningText>
-                <strong>Stanza Summary:</strong> {item.Line}
-              </MeaningText>
-            )}
-          </MeaningItem>
+          </div>
         ))}
         
         {showJson && (
